@@ -4,42 +4,63 @@ from collections import Counter
 from blake3 import blake3
 
 
+def min_entropy(data: bytes | str) -> float:
+    if not data:
+        return 0.0
+    byte_counts = Counter(data)
+    _most_common_byte, max_count = byte_counts.most_common(1)[0]
+    max_probability = max_count / len(data)
+    min_entropy = -math.log2(max_probability)
+    return min_entropy
+
+
+def min_entropy_bits(data: bytes | str) -> int:
+    c = len(data)
+    me = min_entropy(data)
+    total_ent = c * me
+    return int(total_ent)
+
+
 # https://www.reddit.com/r/learnpython/comments/g1sdkh/python_programming_challenge_calculating_shannon/
-def shannon(string: str) -> float:
-    counts = Counter(string)
-    frequencies = ((i / len(string)) for i in counts.values())
+def shannon(data: bytes | str) -> float:
+    counts = Counter(data)
+    frequencies = ((i / len(data)) for i in counts.values())
     return -sum(f * math.log(f, 2) for f in frequencies)
 
 
-def shannon_bits(string: str) -> int:
-    c = len(string)
-    sh = shannon(string)
+def shannon_bits(data: bytes | str) -> int:
+    c = len(data)
+    sh = shannon(data)
     total_ent = c * sh
     return int(total_ent)
 
 
 def curve_1(y: float) -> float:
-    if y <= 0 or y >= 8:
-        raise ValueError("y value out of range")
+    if y >= 8:
+        y = 8
+    elif y <= 0:
+        y = 0
     return 100 - math.log((8 - y) / y) / math.log(1.02)
 
 
 def curve_2(x):
-    return x * 0.01 * x
+    return x * 0.02 * x
 
 
-def recommended_bits(string: str) -> int:
-    s = shannon(string)
-    return recommended_bits_from_shannon(s)
+def recommended_bits(data: bytes | str) -> int:
+    s = min_entropy(data)
+    # s = shannon(string)
+    return recommended_bits_from_entropy(s)
 
 
-def recommended_bits_from_shannon(s: float) -> int:
-    bits = curve_1(s * 1.2)
+def recommended_bits_from_entropy(entropy_bits: float) -> int:
+    bits = curve_1(entropy_bits * 1.1)
     bits = curve_2(bits)
-    if bits < 64:
+    # print(f"entropy_bits={entropy_bits} result={bits}")
+    if bits < 32:
         return 0
-    if bits > 512:
-        return 512
+    if bits > 1024:
+        return 1024
     return int(bits)
 
 

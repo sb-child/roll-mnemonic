@@ -7,6 +7,8 @@ import os
 import qrcode
 from dataclasses import dataclass
 
+from tqdm import tqdm
+
 
 def handle_sig_exit(sig, frame):
     log_err(f"\n[!] {signal.strsignal(sig)} detected. Exiting immediately...")
@@ -14,12 +16,25 @@ def handle_sig_exit(sig, frame):
     os._exit(1)
 
 
+def has_active_tqdm() -> bool:
+    return bool(getattr(tqdm, "_instances", None))
+    # return True
+
+
 def log_err(s: str):
-    sys.stderr.write(s + "\n")
+    if has_active_tqdm():
+        with tqdm.get_lock():
+            tqdm.write(s, file=sys.stderr)
+            sys.stderr.flush()
+    else:
+        sys.stderr.write(s + "\n")
 
 
 def log_out(s: str):
-    sys.stdout.write(s + "\n")
+    if has_active_tqdm():
+        tqdm.write(s, file=sys.stdout)
+    else:
+        sys.stdout.write(s + "\n")
 
 
 def log_out_flush():

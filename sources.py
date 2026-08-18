@@ -6,7 +6,7 @@ import msgpack
 from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, Optional
 from camera import camera_entropy
-from extract import extract, extract_fn
+from extract import ExtractResult, extract, extract_fn
 from mousemove import mouse_move_launcher
 from options import ExtractAllSourcesOptions
 from public_types import Action
@@ -66,13 +66,13 @@ def time_sleep() -> bytes:
 
 def test_extract(a: Action, c: str):
     r = extract(a, c)
-    print(f"hex for {c}:\n{r.hex()}")
+    print(f"hex for {c}:\n{r.data.hex()}")
     return r
 
 
 def test_extract_fn(f: Callable[[], bytes], c: str):
     r = extract_fn(f, c)
-    print(f"hex for {c}:\n{r.hex()}")
+    print(f"hex for {c}:\n{r.data.hex()}")
     return r
 
 
@@ -88,7 +88,7 @@ def process_single_source(comment: str, action: Action | Callable):
         return b""
 
 
-def extract_all_sources(opts: ExtractAllSourcesOptions):
+def extract_all_sources(opts: ExtractAllSourcesOptions) -> list[ExtractResult]:
     sources = {
         "journalctl": Action("journalctl -b 0 --no-pager"),
         "dnf-history": Action("dnf history list"),
@@ -128,7 +128,7 @@ def test():
     o = ExtractAllSourcesOptions(tpm_random_server_endpoint=None)
     r = extract_all_sources(o)
     for i in r:
-        print(f"{i.hex()}")
+        print(f"{i.comment} | {i.error} | {i.entropy} | {i.data.hex()}")
 
 
 if __name__ == "__main__":

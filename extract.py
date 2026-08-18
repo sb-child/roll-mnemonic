@@ -1,47 +1,64 @@
-import base64
 import hashlib
+from dataclasses import dataclass
 from typing import Callable
 from blake3 import blake3
 from execute import execute_action
 from public_types import Action
-from shannon import recommended_bits
+from entropy_math import min_entropy, recommended_bits_from_entropy
 from util import bits_to_bytes, log_err
 
 
-def extract(a: Action, comment: str) -> bytes:
+@dataclass
+class ExtractResult:
+    comment: str
+    entropy: float = 0
+    data: bytes = b""
+    error: str = ""
+
+
+def extract(a: Action, comment: str) -> ExtractResult:
     b3 = blake3(derive_key_context=f"extract for {comment}")
     r = execute_action(a)
     if r.error:
         log_err(f"extract({comment}): Failed: {r.error}")
+        return ExtractResult(
+            comment=comment, error=f"during executing action: {r.error}"
+        )
     a_str = a.to_json()
     r_str = r.to_json()
     combined = a_str + r_str
-    recommend_bytes = bits_to_bytes(recommended_bits(combined))
+    me = min_entropy(combined)
+    recommend_bytes = bits_to_bytes(recommended_bits_from_entropy(me))
     # log_err(f"extract({comment}): recommend_bytes: {recommend_bytes}")
     if recommend_bytes == 0:
         log_err(f"extract({comment}): entropy not enough")
-        return b""
+        return ExtractResult(comment=comment, error="entropy not enough", entropy=me)
     b3.update(combined.encode())
-    return b3.digest(length=recommend_bytes)
+    return ExtractResult(
+        comment=comment, data=b3.digest(length=recommend_bytes), entropy=me
+    )
 
 
-def extract_fn(f: Callable[[], bytes], comment: str) -> bytes:
-    b3 = blake3(derive_key_context=f"extract for {comment}")
+def extract_fn(f: Callable[[], bytes], comment: str) -> ExtractResult:
     try:
         r = f()
     except Exception as e:
         log_err(f"extract_fn({comment}): Failed: {e}")
-        b3.update(b"FUNCTION RAISED EXCEPTION")
+        return ExtractResult(comment=comment, error=f"during executing function: {e}")
     else:
-        r_str = base64.b64encode(r).decode()
-        recommend_bytes = bits_to_bytes(recommended_bits(r_str))
+        me = min_entropy(r)
+        recommend_bytes = bits_to_bytes(recommended_bits_from_entropy(me))
         # log_err(f"extract({comment}): recommend_bytes: {recommend_bytes}")
         if recommend_bytes == 0:
             log_err(f"extract({comment}): entropy not enough")
-            return b""
+            return ExtractResult(
+                comment=comment, error="entropy not enough", entropy=me
+            )
+        b3 = blake3(derive_key_context=f"extract for {comment}")
         b3.update(r)
-        return b3.digest(length=recommend_bytes)
-    return b3.digest(length=16)
+        return ExtractResult(
+            comment=comment, data=b3.digest(length=recommend_bytes), entropy=me
+        )
 
 
 def extract_from_entropy_list(

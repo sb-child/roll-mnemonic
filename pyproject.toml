@@ -17,6 +17,7 @@ dependencies = [
     "msgpack>=1.2.1",
     "numpy>=2.5.2",
     "opencv-python>=5.0.0.93",
+    "prettytable>=3.18.0",
     "pycryptodome>=3.23.0",
     "pydantic>=2.13.4",
     "qrcode>=8.2",

@@ -9,7 +9,7 @@ def record_sound() -> NDArray[numpy.float32]:
     sr = 44100
     channels = 2
     duration = 30.0
-    log_err(f"record_sound: Start Recording for {duration} secs.")
+    log_err(f"[sound_entropy] Start Recording for {duration} secs.")
     try:
         recording = sd.rec(
             int(duration * sr), samplerate=sr, channels=channels, blocking=True
@@ -40,6 +40,7 @@ def record_sound() -> NDArray[numpy.float32]:
 def sound_entropy() -> bytes:
     s = record_sound()
     b = s.tobytes()
+    log_err(f"[sound_entropy] Recording Completed, {len(b)} bytes.")
     return b
 
 

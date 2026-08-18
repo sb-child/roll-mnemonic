@@ -1,8 +1,7 @@
-from public_types import Action, Result
-
 import subprocess
 import time
 from typing import Optional
+from public_types import Action, Result
 
 
 def execute_action(action: Action, timeout: Optional[float] = None) -> Result:

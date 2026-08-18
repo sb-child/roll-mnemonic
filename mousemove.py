@@ -1,7 +1,6 @@
 import msgpack
 import asyncio
 import evdev
-import numpy
 from tqdm import tqdm
 from typing import List
 from util import log_err, to_bytes
@@ -93,11 +92,11 @@ async def mouse_move_launcher() -> tuple[bytes, int]:
         tasks.append(task)
     duration = 10
     log_err(
-        f"[mousemove] Please move you mouse randomly for {duration} secs. I'm recording your activity to produce entropy."
+        f"[mouse-move] Please move you mouse randomly for {duration} secs. I'm recording your activity to produce entropy."
     )
     with tqdm(
         total=duration,
-        desc="[mousemove]",
+        desc="[mouse-move]",
         unit="s",
         postfix={"devices": devices_counter.load(), "events": events_counter.load()},
     ) as pbar:
@@ -123,12 +122,12 @@ async def mouse_move_launcher() -> tuple[bytes, int]:
     events = await asyncio.gather(*drain_tasks)
     total_events_count = sum(len(sub) for sub in events)
     events_bytes: bytes = to_bytes(msgpack.packb(events))
-    log_err(f"[mousemove] Got {total_events_count} events, {len(events_bytes)} bytes.")
+    log_err(f"[mouse-move] Got {total_events_count} events, {len(events_bytes)} bytes.")
     return (events_bytes, total_events_count)
 
 
 def event_entropy_curve(x: float) -> float:
-    x_pts = [0, 6000, 6800, 7600, 12000]
+    x_pts = [0, 4000, 6800, 7600, 12000]
     y_pts = [16, 32, 48, 64, 65]
     interpolator = PchipInterpolator(x_pts, y_pts)
     x_clamped = max(x_pts[0], min(x, x_pts[-1]))

@@ -48,6 +48,9 @@ def mouse_move():
     ssl.RAND_add(event_bytes, float(total_events_count))
     assert ssl.RAND_status(), "OpenSSL PRNG is not seeded"
     b = round(event_entropy_curve(total_events_count))
+    if b == 0:
+        log_err("mouse_move: Event count not enough.")
+        return b""
     r = ssl.RAND_bytes(b)
     assert len(r) == b
     return r
@@ -109,10 +112,10 @@ def extract_all_sources(opts: ExtractAllSourcesOptions) -> list[ExtractResult]:
         "lscpu-freq": Action("lscpu -y -J -e"),
         "time-sleep": time_sleep,
         "urandom": urandom,
-        "mouse-move": mouse_move,
         "tpm-random": lambda: tpm_random(opts.tpm_random_server_endpoint),
+        "mouse-move": mouse_move,
         "camera-entropy": camera_entropy,
-        "sound": sound_entropy,
+        "sound-entropy": sound_entropy,
     }
     max_workers = len(sources)
     with ThreadPoolExecutor(max_workers=max_workers) as executor:

@@ -4,6 +4,7 @@ import platform
 import signal
 import sys
 import os
+import numpy
 import qrcode
 from dataclasses import dataclass
 
@@ -71,6 +72,35 @@ def to_bytes(b) -> bytes:
 
 def bits_to_bytes(b: int) -> int:
     return (b + 7) // 8
+
+
+def normalize_to_dtype_limits(arr: numpy.ndarray, target_dtype):
+    dt = numpy.dtype(target_dtype)
+    if numpy.issubdtype(dt, numpy.integer):
+        info = numpy.iinfo(dt)
+    elif numpy.issubdtype(dt, numpy.floating):
+        info = numpy.finfo(dt)
+    else:
+        raise TypeError(f"Unsupported dtype {dt}")
+    t_min, t_max = info.min, info.max
+    if numpy.issubdtype(arr.dtype, numpy.floating):
+        clean_input = numpy.nan_to_num(
+            arr, nan=numpy.nan, posinf=numpy.nan, neginf=numpy.nan
+        )
+        a_min = numpy.nanmin(clean_input)
+        a_max = numpy.nanmax(clean_input)
+    else:
+        a_min, a_max = numpy.min(arr), numpy.max(arr)
+    if numpy.isnan(a_min) or numpy.isnan(a_max) or a_min == a_max:
+        return numpy.full(arr.shape, t_min, dtype=dt)
+    calc_dtype = numpy.float64
+    norm_arr = (arr.astype(calc_dtype) - a_min) / (a_max - a_min)
+    scaled_arr = norm_arr * (float(t_max) - float(t_min)) + float(t_min)
+    clipped_arr = numpy.clip(scaled_arr, float(t_min), float(t_max))
+    final_arr = numpy.nan_to_num(
+        clipped_arr, nan=float(t_min), posinf=float(t_max), neginf=float(t_min)
+    )
+    return final_arr.astype(dt)
 
 
 @dataclass

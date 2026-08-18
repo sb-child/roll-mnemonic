@@ -28,7 +28,7 @@ def extract_all_sources( ... ):
 
 ## Get Started
 
-Currently only support Linux.
+Currently only support Linux. It runs well on my python 3.14.6 environment.
 
 ```bash
 git clone https://github.com/sb-child/roll-mnemonic.git

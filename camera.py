@@ -4,7 +4,7 @@ from typing import cast
 from entropy_math import recommended_bits_from_entropy, guess_entropy
 from blake3 import blake3
 from numpy.typing import NDArray
-from util import log_err
+from util import log_err, normalize_to_dtype_limits
 
 
 def open_camera() -> cv2.VideoCapture:
@@ -17,12 +17,19 @@ def open_camera() -> cv2.VideoCapture:
 
 
 def take_photo(vc: cv2.VideoCapture) -> tuple[float, bytes]:
-    ret, frame = vc.read()
+    ret, frame1 = vc.read()
     if not ret:
-        log_err("take_photo: Failed to grab a frame.")
+        log_err("take_photo: Failed to grab frame A.")
         return (0, b"")
-    f = cast(NDArray[numpy.uint8], frame)
-    b = f.tobytes()
+    f1 = cast(NDArray[numpy.uint8], frame1).astype(numpy.int16)
+    ret, frame2 = vc.read()
+    if not ret:
+        log_err("take_photo: Failed to grab frame B.")
+        return (0, b"")
+    f2 = cast(NDArray[numpy.uint8], frame2).astype(numpy.int16)
+    diff = f2 - f1
+    norm = normalize_to_dtype_limits(diff, numpy.int16)
+    b = norm.tobytes()
     b_entropy = guess_entropy(b)
     return (b_entropy, b)
 
@@ -33,8 +40,8 @@ def close_camera(vc: cv2.VideoCapture):
 
 def grab_frames() -> tuple[list[bytes], float]:
     c = open_camera()
-    log_err("[camera] Starting grab frames.")
-    n = 30 * 10
+    log_err("[camera-entropy] Starting grab frames.")
+    n = 100
     res = []
     ent = 1.0
     for i in range(n):
@@ -44,7 +51,7 @@ def grab_frames() -> tuple[list[bytes], float]:
             ent = (ent + f[0]) / 2
         else:
             log_err(f"camera: Error grabbing frame {i}.")
-    log_err(f"[camera] Grabbed {len(res)}/{n} frames.")
+    log_err(f"[camera-entropy] Grabbed {len(res)}/{n} frames, processing data...")
     return (res, ent)
 
 
@@ -57,4 +64,5 @@ def camera_entropy() -> bytes:
     b3 = blake3(derive_key_context="camera_entropy")
     for i in f:
         b3.update(i)
+    log_err("[camera-entropy] Data process completed.")
     return b3.digest(length=recommend)

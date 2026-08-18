@@ -29,8 +29,8 @@ def shannon(data: bytes | str) -> float:
 
 
 def curve_1(y: float) -> float:
-    if y >= 8:
-        y = 8
+    if y >= 7.9:
+        y = 7.9
     elif y < 0.5:
         y = 0.5
     return 100 - math.log((8 - y) / y) / math.log(1.02)

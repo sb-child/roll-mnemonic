@@ -8,7 +8,7 @@ from util import log_err
 def record_sound() -> NDArray[numpy.float32]:
     sr = 44100
     channels = 2
-    duration = 30.0
+    duration = 10.0
     log_err(f"[sound_entropy] Start Recording for {duration} secs.")
     try:
         recording = sd.rec(

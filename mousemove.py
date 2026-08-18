@@ -1,11 +1,13 @@
 import msgpack
 import asyncio
 import evdev
+import numpy
 from tqdm import tqdm
 from typing import List
 from util import log_err, to_bytes
 from evdev import InputDevice, ecodes
 from atomicx import AtomicInt
+from scipy.interpolate import PchipInterpolator
 
 
 def find_mice() -> List[InputDevice[str]]:
@@ -21,12 +23,26 @@ def find_mice() -> List[InputDevice[str]]:
     return mice
 
 
-def evdev_input_device_name(dev: InputDevice[str]):
-    return f"{dev.fd},{dev.name},{dev.ff_effects_count},{dev.info},{dev.path},{dev.phys},{dev.uniq},{dev.version},{dev.capabilities()}"
+def evdev_input_device_name(dev: InputDevice[str]) -> bytes:
+    ls = [
+        dev.fd,
+        dev.name,
+        dev.ff_effects_count,
+        dev.info,
+        dev.path,
+        dev.phys,
+        dev.uniq,
+        dev.version,
+        dev.capabilities(),
+    ]
+    b: bytes = to_bytes(msgpack.packb(ls))
+    return b
 
 
-def evdev_encode_event(event: evdev.events.InputEvent):
-    return f"{event.code},{event.type},{event.sec},{event.usec},{event.value}"
+def evdev_encode_event(event: evdev.events.InputEvent) -> bytes:
+    ls = [event.code, event.type, event.sec, event.usec, event.value]
+    b: bytes = to_bytes(msgpack.packb(ls))
+    return b
 
 
 async def mouse_move_recorder(
@@ -75,10 +91,10 @@ async def mouse_move_launcher() -> tuple[bytes, int]:
         )
         event_queues.append(event_queue)
         tasks.append(task)
+    duration = 10
     log_err(
-        "[mousemove] Please move you mouse randomly for 30 secs.\nI'm recording your activity to produce entropy."
+        f"[mousemove] Please move you mouse randomly for {duration} secs. I'm recording your activity to produce entropy."
     )
-    duration = 30
     with tqdm(
         total=duration,
         desc="[mousemove]",
@@ -109,3 +125,11 @@ async def mouse_move_launcher() -> tuple[bytes, int]:
     events_bytes: bytes = to_bytes(msgpack.packb(events))
     log_err(f"[mousemove] Got {total_events_count} events, {len(events_bytes)} bytes.")
     return (events_bytes, total_events_count)
+
+
+def event_entropy_curve(x: float) -> float:
+    x_pts = [0, 6000, 6800, 7600, 12000]
+    y_pts = [16, 32, 48, 64, 65]
+    interpolator = PchipInterpolator(x_pts, y_pts)
+    x_clamped = max(x_pts[0], min(x, x_pts[-1]))
+    return float(interpolator(x_clamped))

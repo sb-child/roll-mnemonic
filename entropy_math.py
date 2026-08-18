@@ -4,6 +4,13 @@ from collections import Counter
 from blake3 import blake3
 
 
+def guess_entropy(data: bytes | str) -> float:
+    me = min_entropy(data) * 1.5
+    sh = shannon(data) * 0.5
+    r = sum((me, sh)) / 2
+    return r
+
+
 def min_entropy(data: bytes | str) -> float:
     if not data:
         return 0.0
@@ -14,25 +21,11 @@ def min_entropy(data: bytes | str) -> float:
     return min_entropy
 
 
-def min_entropy_bits(data: bytes | str) -> int:
-    c = len(data)
-    me = min_entropy(data)
-    total_ent = c * me
-    return int(total_ent)
-
-
 # https://www.reddit.com/r/learnpython/comments/g1sdkh/python_programming_challenge_calculating_shannon/
 def shannon(data: bytes | str) -> float:
     counts = Counter(data)
     frequencies = ((i / len(data)) for i in counts.values())
     return -sum(f * math.log(f, 2) for f in frequencies)
-
-
-def shannon_bits(data: bytes | str) -> int:
-    c = len(data)
-    sh = shannon(data)
-    total_ent = c * sh
-    return int(total_ent)
 
 
 def curve_1(y: float) -> float:
@@ -48,8 +41,7 @@ def curve_2(x):
 
 
 def recommended_bits(data: bytes | str) -> int:
-    s = min_entropy(data)
-    # s = shannon(string)
+    s = guess_entropy(data)
     return recommended_bits_from_entropy(s)
 
 

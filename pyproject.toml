@@ -22,6 +22,7 @@ dependencies = [
     "pydantic>=2.13.4",
     "qrcode>=8.2",
     "requests>=2.34.2",
+    "scipy>=1.18.0",
     "sounddevice>=0.5.6",
     "tqdm>=4.70.0",
     "uvicorn>=0.52.3",

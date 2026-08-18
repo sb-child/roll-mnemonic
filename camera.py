@@ -1,7 +1,7 @@
 import cv2
 import numpy
 from typing import cast
-from entropy_math import recommended_bits_from_entropy, min_entropy
+from entropy_math import recommended_bits_from_entropy, guess_entropy
 from blake3 import blake3
 from numpy.typing import NDArray
 from util import log_err
@@ -23,7 +23,7 @@ def take_photo(vc: cv2.VideoCapture) -> tuple[float, bytes]:
         return (0, b"")
     f = cast(NDArray[numpy.uint8], frame)
     b = f.tobytes()
-    b_entropy = min_entropy(b)
+    b_entropy = guess_entropy(b)
     return (b_entropy, b)
 
 

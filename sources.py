@@ -3,11 +3,12 @@ import time
 import random
 import asyncio
 import msgpack
+import ssl
 from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, Optional
 from camera import camera_entropy
 from extract import ExtractResult, extract, extract_fn
-from mousemove import mouse_move_launcher
+from mousemove import event_entropy_curve, mouse_move_launcher
 from options import ExtractAllSourcesOptions
 from public_types import Action
 from sound import sound_entropy
@@ -40,9 +41,16 @@ def tpm_random(endpoint: Optional[str]) -> bytes:
 
 
 def mouse_move():
-    (event_bytes, _total_events_count) = asyncio.run(mouse_move_launcher())
-    # TODO: 我能用 _total_events_count 做什么..
-    return event_bytes
+    assert ssl.RAND_status(), "OpenSSL PRNG is not seeded"
+    (event_bytes, total_events_count) = asyncio.run(mouse_move_launcher())
+    assert len(event_bytes) > 0
+    assert total_events_count > 0
+    ssl.RAND_add(event_bytes, float(total_events_count))
+    assert ssl.RAND_status(), "OpenSSL PRNG is not seeded"
+    b = round(event_entropy_curve(total_events_count))
+    r = ssl.RAND_bytes(b)
+    assert len(r) == b
+    return r
 
 
 def time_sleep() -> bytes:
@@ -101,7 +109,7 @@ def extract_all_sources(opts: ExtractAllSourcesOptions) -> list[ExtractResult]:
         "lscpu-freq": Action("lscpu -y -J -e"),
         "time-sleep": time_sleep,
         "urandom": urandom,
-        "mousemove": mouse_move,
+        "mouse-move": mouse_move,
         "tpm-random": lambda: tpm_random(opts.tpm_random_server_endpoint),
         "camera-entropy": camera_entropy,
         "sound": sound_entropy,

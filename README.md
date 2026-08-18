@@ -68,16 +68,19 @@ uv run bip39_generate.py --tpm_random_server_endpoint="http://10.22.22.33:4444/g
 
 # lock_memory: setrlimit Success
 # lock_memory: mlockall Failed: -1, errno=12
-# record_sound: Start Recording for 30.0 secs.
-# camera: Starting grab frames.
-# [mousemove] Please move you mouse randomly for 30 secs.
-# I'm recording your activity to produce entropy.
-# [mousemove]: 100%|████████████████████| 30/30 [00:30<00:00,  1.00s/s, devices=5, events=84584]
-# [mousemove] Got 84584 events, 2237461 bytes.
-# camera: Grabbed 300/300 frames.
-
+# [sound-entropy] Start Recording for 10.0 secs.
+# [camera-entropy] Starting grab frames.
+# [mouse-move] Please move you mouse randomly for 10 secs. I'm recording your activity to produce entropy.
+# [mouse-move]: 100%|████████████████████| 10/10 [00:10<00:00,  1.09s/s, devices=5, events=9818]
+# [mouse-move] Got 9818 events, 157157 bytes.
+# [sound-entropy] Record completed, processing data...
+# [sound-entropy] Data process completed, 3528000 bytes.
+# [camera-entropy] Grabbed 100/100 frames, processing data...
+# [camera-entropy] Data process completed.
+# ... Entropy table
 # Generated 24 words.
-# Mnemonic: soul moral away volume guide chuckle consider foil option razor effort december core spell review scrap neutral protect style slice easy voice potato prepare
+# ... Mnemonic phrases table
+# Or copy this: soul moral away volume guide chuckle consider foil option razor effort december core spell review scrap neutral protect style slice easy voice potato prepare
 # 
 # Ethereum (#0): 0x5AcA01cBFBBE4964A50eD938b9AB5276Cba70c98
 # Solana   (#0): 7PStF2BgThNyTnpYx9s6jsbveANaS8EsWVFDdFumyTxA

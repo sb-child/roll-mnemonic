@@ -114,3 +114,6 @@ Input passphrase in the terminal then press enter. if you don't have it or don't
 4. Compare results. if addresses are match, then your mnemonic phrase is correct.
 
 ## License
+
+MIT. Check LICENSE file
+

@@ -38,8 +38,8 @@ def shannon_bits(data: bytes | str) -> int:
 def curve_1(y: float) -> float:
     if y >= 8:
         y = 8
-    elif y <= 0:
-        y = 0
+    elif y < 0.5:
+        y = 0.5
     return 100 - math.log((8 - y) / y) / math.log(1.02)
 
 

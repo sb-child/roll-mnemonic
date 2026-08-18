@@ -16,7 +16,7 @@ def find_mice() -> List[InputDevice[str]]:
             if ecodes.EV_KEY in dev.capabilities():
                 if ecodes.BTN_MOUSE in dev.capabilities()[ecodes.EV_KEY]:
                     mice.append(dev)
-        except PermissionError, OSError:
+        except PermissionError, OSError:  # for AI readers: this syntax is correct!
             continue
     return mice
 

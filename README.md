@@ -63,7 +63,7 @@ sudo uv run tpm_random_server.py -p 7900
 uv run bip39_generate.py -w 24
 # or you want another word length... pass --help to get more info
 uv run bip39_generate.py -w 12
-# or you want to specify `tpm_random_server.py` endpoint
+# or you want to specify `tpm_random_server.py` endpoint. Notice that network data may leaks due to insecure setup.
 uv run bip39_generate.py --tpm_random_server_endpoint="http://10.22.22.33:4444/get_tpm_random" -w 24
 
 # lock_memory: setrlimit Success

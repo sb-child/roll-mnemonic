@@ -1,7 +1,6 @@
 import numpy
 import sounddevice as sd
 from typing import cast
-from blake3 import blake3
 from numpy.typing import NDArray
 from util import log_err
 
@@ -41,9 +40,7 @@ def record_sound() -> NDArray[numpy.float32]:
 def sound_entropy() -> bytes:
     s = record_sound()
     b = s.tobytes()
-    b3 = blake3(derive_key_context="sound_entropy")
-    b3.update(b)
-    return b3.digest(length=512)
+    return b
 
 
 def main():

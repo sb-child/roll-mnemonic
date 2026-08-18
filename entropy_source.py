@@ -1,7 +1,6 @@
 import os
 import time
 import random
-import ssl
 import asyncio
 import msgpack
 from concurrent.futures import ThreadPoolExecutor
@@ -41,13 +40,9 @@ def tpm_random(endpoint: Optional[str]) -> bytes:
 
 
 def mouse_move():
-    assert ssl.RAND_status(), "OpenSSL PRNG is not seeded"
-    (event_bytes, total_events_count) = asyncio.run(mouse_move_launcher())
-    ssl.RAND_add(event_bytes, float(total_events_count))
-    assert ssl.RAND_status(), "OpenSSL PRNG is not seeded"
-    r = ssl.RAND_bytes(512)
-    assert len(r) == 512
-    return r
+    (event_bytes, _total_events_count) = asyncio.run(mouse_move_launcher())
+    # TODO: 我能用 _total_events_count 做什么..
+    return event_bytes
 
 
 def time_sleep() -> bytes:

@@ -1,9 +1,11 @@
+import base64
 import hashlib
 from typing import Callable
 from blake3 import blake3
 from execute import execute_action
 from public_types import Action
-from util import log_err
+from shannon import recommended_bits
+from util import bits_to_bytes, log_err
 
 
 def extract(a: Action, comment: str) -> bytes:
@@ -11,12 +13,19 @@ def extract(a: Action, comment: str) -> bytes:
     r = execute_action(a)
     if r.error:
         log_err(f"extract({comment}): Failed: {r.error}")
-    b3.update(a.to_json().encode())
-    b3.update(r.to_json().encode())
-    return b3.digest(length=256)
+    a_str = a.to_json()
+    r_str = r.to_json()
+    combined = a_str + r_str
+    recommend_bytes = bits_to_bytes(recommended_bits(combined))
+    # log_err(f"extract({comment}): recommend_bytes: {recommend_bytes}")
+    if recommend_bytes == 0:
+        log_err(f"extract({comment}): entropy not enough")
+        return b""
+    b3.update(combined.encode())
+    return b3.digest(length=recommend_bytes)
 
 
-def extract_fn(f: Callable[[], bytes], comment: str):
+def extract_fn(f: Callable[[], bytes], comment: str) -> bytes:
     b3 = blake3(derive_key_context=f"extract for {comment}")
     try:
         r = f()
@@ -24,8 +33,15 @@ def extract_fn(f: Callable[[], bytes], comment: str):
         log_err(f"extract_fn({comment}): Failed: {e}")
         b3.update(b"FUNCTION RAISED EXCEPTION")
     else:
+        r_str = base64.b64encode(r).decode()
+        recommend_bytes = bits_to_bytes(recommended_bits(r_str))
+        # log_err(f"extract({comment}): recommend_bytes: {recommend_bytes}")
+        if recommend_bytes == 0:
+            log_err(f"extract({comment}): entropy not enough")
+            return b""
         b3.update(r)
-    return b3.digest(length=256)
+        return b3.digest(length=recommend_bytes)
+    return b3.digest(length=16)
 
 
 def extract_from_entropy_list(

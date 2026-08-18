@@ -54,6 +54,10 @@ def to_bytes(b) -> bytes:
     raise TypeError(f"Can not convert {type(b)} to bytes.")
 
 
+def bits_to_bytes(b: int) -> int:
+    return (b + 7) // 8
+
+
 @dataclass
 class MemFd:
     mem: mmap.mmap

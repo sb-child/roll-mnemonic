@@ -49,7 +49,7 @@ If you don't have a tpm2 module, that's ok. no need to start server or set other
 You can change the listen port to anyone else.
 
 ```bash
-sudo tpm_random_server.py -p 7900
+sudo uv run tpm_random_server.py -p 7900
 
 # INFO:     Started server process [86230]
 # INFO:     Waiting for application startup.

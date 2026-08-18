@@ -1,0 +1,21 @@
+# --- uv & Virtual Environments ---
+.venv/
+
+# --- Python Build & Caching ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging profiles
+build/
+dist/
+wheels/
+*.egg-info/
+
+# --- Environment Variables ---
+.env
+.env.*
+!.env.example
+
+# --- Python Version Management ---
+.python-version

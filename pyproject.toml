@@ -1,0 +1,26 @@
+[project]
+name = "roll-mnemonic"
+version = "0.1.0"
+description = "Generates and verify BIP-39 mnemonic phrases"
+readme = "README.md"
+requires-python = ">=3.14"
+license = { file = "LICENSE" }
+dependencies = [
+    "aiologger>=0.7.0",
+    "atomicx>=0.0.15",
+    "base58>=2.1.1",
+    "blake3>=1.0.9",
+    "cryptography>=50.0.0",
+    "evdev>=1.9.3",
+    "fastapi>=0.141.1",
+    "mnemonic>=0.21",
+    "numpy>=2.5.2",
+    "opencv-python>=5.0.0.93",
+    "pycryptodome>=3.23.0",
+    "pydantic>=2.13.4",
+    "qrcode>=8.2",
+    "requests>=2.34.2",
+    "sounddevice>=0.5.6",
+    "tqdm>=4.70.0",
+    "uvicorn>=0.52.3",
+]

@@ -54,7 +54,7 @@ def print_mnemonic_table(mnemonic_str: str):
     num_cols = 3 if total_words <= 15 else 4
     num_rows = (total_words + num_cols - 1) // num_cols
     table = PrettyTable()
-    table.title = f"Your {total_words} words mnemonic"
+    table.title = f"Your {total_words}-word mnemonic phrases"
     table.header = False
     table.hrules = HRuleStyle.FRAME
     table.vrules = VRuleStyle.FRAME

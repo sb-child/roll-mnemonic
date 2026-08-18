@@ -44,6 +44,16 @@ def print_qr(data: str):
     log_err("======QRCode======")
 
 
+def to_bytes(b) -> bytes:
+    if isinstance(b, bytes):
+        return b
+    elif isinstance(b, str):
+        return b.encode("utf-8", errors="replace")
+    elif isinstance(b, int):
+        return str(b).encode("utf-8")
+    raise TypeError(f"Can not convert {type(b)} to bytes.")
+
+
 @dataclass
 class MemFd:
     mem: mmap.mmap

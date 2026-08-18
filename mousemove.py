@@ -1,9 +1,9 @@
-import pickle
+import msgpack
 import asyncio
 import evdev
 from tqdm import tqdm
 from typing import List
-from util import log_err
+from util import log_err, to_bytes
 from evdev import InputDevice, ecodes
 from atomicx import AtomicInt
 
@@ -106,6 +106,6 @@ async def mouse_move_launcher() -> tuple[bytes, int]:
     drain_tasks = [asyncio.create_task(drain_queue(q)) for q in event_queues]
     events = await asyncio.gather(*drain_tasks)
     total_events_count = sum(len(sub) for sub in events)
-    events_bytes = pickle.dumps(events)
+    events_bytes: bytes = to_bytes(msgpack.packb(events))
     log_err(f"[mousemove] Got {total_events_count} events, {len(events_bytes)} bytes.")
     return (events_bytes, total_events_count)

@@ -1,10 +1,10 @@
-from concurrent.futures import ThreadPoolExecutor
 import os
 import time
-import pickle
 import random
 import ssl
 import asyncio
+import msgpack
+from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, Optional
 from camera import camera_entropy
 from extract import extract, extract_fn
@@ -13,7 +13,7 @@ from options import ExtractAllSourcesOptions
 from public_types import Action
 from sound import sound_entropy
 from tpm_random_client import get_tpm_random
-from util import log_err
+from util import log_err, to_bytes
 
 
 def urandom() -> bytes:
@@ -65,8 +65,8 @@ def time_sleep() -> bytes:
         r = random.random()  # 0.0 ~ 1.0
         time.sleep(r / 1000.0)
         record()
-    r = pickle.dumps(ticks)
-    return r
+    b: bytes = to_bytes(msgpack.packb(ticks))
+    return b
 
 
 def test_extract(a: Action, c: str):

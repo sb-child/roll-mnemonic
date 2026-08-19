@@ -1,7 +1,7 @@
 import cv2
 import numpy
 from typing import cast
-from entropy_math import recommended_bits_from_entropy, guess_entropy
+from randomness_math import randomness_score, recommended_bits_from_score
 from blake3 import blake3
 from numpy.typing import NDArray
 from util import log_err, normalize_to_dtype_limits
@@ -30,8 +30,8 @@ def take_photo(vc: cv2.VideoCapture) -> tuple[float, bytes]:
     diff = f2 - f1
     norm = normalize_to_dtype_limits(diff, numpy.int16)
     b = norm.tobytes()
-    b_entropy = guess_entropy(b)
-    return (b_entropy, b)
+    b_randomness = randomness_score(b)
+    return (b_randomness, b)
 
 
 def close_camera(vc: cv2.VideoCapture):
@@ -46,18 +46,23 @@ def grab_frames() -> tuple[list[bytes], float]:
     ent = 1.0
     for i in range(n):
         f = take_photo(c)
-        if len(f[1]) > 0 and f[0] > 1:
+        if len(f[1]) > 0 and f[0] > 0.2:
             res.append(f[1])
             ent = (ent + f[0]) / 2
         else:
-            log_err(f"camera: Error grabbing frame {i}.")
+            reason = (
+                ", see reason above."
+                if len(f[1]) == 0
+                else f": randomness_score={f[0]:.08f} not enough."
+            )
+            log_err(f"camera: Error grabbing frame {i}{reason}")
     log_err(f"[camera-entropy] Grabbed {len(res)}/{n} frames, processing data...")
     return (res, ent)
 
 
 def camera_entropy() -> bytes:
     (f, ent) = grab_frames()
-    recommend = recommended_bits_from_entropy(ent)
+    recommend = recommended_bits_from_score(ent)
     if recommend == 0:
         log_err("camera_entropy: entropy not enough")
         return b""

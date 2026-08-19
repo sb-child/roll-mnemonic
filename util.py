@@ -7,7 +7,7 @@ import os
 import numpy
 import qrcode
 from dataclasses import dataclass
-
+from scipy.interpolate import PchipInterpolator
 from tqdm import tqdm
 
 
@@ -101,6 +101,24 @@ def normalize_to_dtype_limits(arr: numpy.ndarray, target_dtype):
         clipped_arr, nan=float(t_min), posinf=float(t_max), neginf=float(t_min)
     )
     return final_arr.astype(dt)
+
+
+def clamped_pchip(x_pts: list[float], y_pts: list[float], x_val: float) -> float:
+    interpolator = PchipInterpolator(x_pts, y_pts)
+    x_clamped = max(x_pts[0], min(x_val, x_pts[-1]))
+    return float(interpolator(x_clamped))
+
+
+def scale_float(
+    value: float,
+    old_min: float = 0.0,
+    old_max: float = 1.0,
+    new_min: float = 0.0,
+    new_max: float = 1.0,
+):
+    if old_min == old_max:
+        return new_min
+    return new_min + ((value - old_min) * (new_max - new_min) / (old_max - old_min))
 
 
 @dataclass

@@ -3,10 +3,9 @@ import asyncio
 import evdev
 from tqdm import tqdm
 from typing import List
-from util import log_err, to_bytes
+from util import clamped_pchip, log_err, to_bytes
 from evdev import InputDevice, ecodes
 from atomicx import AtomicInt
-from scipy.interpolate import PchipInterpolator
 
 
 def find_mice() -> List[InputDevice[str]]:
@@ -127,8 +126,6 @@ async def mouse_move_launcher() -> tuple[bytes, int]:
 
 
 def event_entropy_curve(x: float) -> float:
-    x_pts = [0, 4000, 6800, 7600, 12000]
-    y_pts = [16, 32, 48, 64, 65]
-    interpolator = PchipInterpolator(x_pts, y_pts)
-    x_clamped = max(x_pts[0], min(x, x_pts[-1]))
-    return float(interpolator(x_clamped))
+    x_pts = [0.0, 4000, 6800, 7600, 12000]
+    y_pts = [16.0, 32, 48, 64, 65]
+    return clamped_pchip(x_pts, y_pts, x)

@@ -30,13 +30,13 @@ WORD_TO_BYTES_MAP: dict[int, int] = {
 def process_extract_results(input: list[ExtractResult]) -> list[bytes]:
     el = []
     table = PrettyTable()
-    table.field_names = ["Source", "Entropy/byte", "Bytes", "Error"]
+    table.field_names = ["Source", "Randomness", "Bytes", "Error"]
     table.align = "l"
     for res in input:
         table.add_row(
             [
                 res.comment,
-                "-" if res.entropy <= 0 else f"{res.entropy:.4f}",
+                "-" if res.entropy <= 0 else f"{res.entropy:.8f}",
                 len(res.data),
                 "-" if res.error == "" else res.error,
             ]

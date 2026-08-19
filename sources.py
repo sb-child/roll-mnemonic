@@ -19,7 +19,9 @@ from util import log_err, to_bytes
 def urandom() -> bytes:
     r = os.urandom(512)
     assert len(r) == 512
-    return r
+    r2 = os.urandom(512)
+    assert len(r) == 512
+    return r + r2
 
 
 def tpm_random(endpoint: Optional[str]) -> bytes:
@@ -30,7 +32,7 @@ def tpm_random(endpoint: Optional[str]) -> bytes:
         return r
 
     try:
-        r = [get_random() for _ in range(32)]
+        r = [get_random() for _ in range(64)]
     except AssertionError as e:
         log_err(f"tpm_random: Is your TPM works? Check server logs: {e}")
         raise e

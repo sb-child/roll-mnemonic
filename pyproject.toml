@@ -5,6 +5,7 @@ description = "Generates and verify BIP-39 mnemonic phrases"
 readme = "README.md"
 requires-python = ">=3.14"
 license = { file = "LICENSE" }
+authors = [{"name" = "sbchild", "email" = "sbchild0@gmail.com" }]
 dependencies = [
     "aiologger>=0.7.0",
     "atomicx>=0.0.15",
@@ -21,6 +22,7 @@ dependencies = [
     "pycryptodome>=3.23.0",
     "pydantic>=2.13.4",
     "qrcode>=8.2",
+    "randomness-kit>=0.1.1",
     "requests>=2.34.2",
     "scipy>=1.18.0",
     "sounddevice>=0.5.6",

@@ -4,7 +4,7 @@ from typing import Callable
 from blake3 import blake3
 from execute import execute_action
 from public_types import Action
-from entropy_math import guess_entropy, recommended_bits_from_entropy
+from randomness_math import randomness_score, recommended_bits_from_score
 from util import bits_to_bytes, log_err
 
 
@@ -27,8 +27,8 @@ def extract(a: Action, comment: str) -> ExtractResult:
     a_str = a.to_json()
     r_str = r.to_json()
     combined = a_str + r_str
-    me = guess_entropy(combined)
-    recommend_bytes = bits_to_bytes(recommended_bits_from_entropy(me))
+    me = randomness_score(combined)
+    recommend_bytes = bits_to_bytes(recommended_bits_from_score(me))
     # log_err(f"extract({comment}): recommend_bytes: {recommend_bytes}")
     if recommend_bytes == 0:
         log_err(f"extract({comment}): entropy not enough")
@@ -46,8 +46,8 @@ def extract_fn(f: Callable[[], bytes], comment: str) -> ExtractResult:
         log_err(f"extract_fn({comment}): Failed: {e}")
         return ExtractResult(comment=comment, error=f"during executing function: {e}")
     else:
-        me = guess_entropy(r)
-        recommend_bytes = bits_to_bytes(recommended_bits_from_entropy(me))
+        me = randomness_score(r)
+        recommend_bytes = bits_to_bytes(recommended_bits_from_score(me))
         # log_err(f"extract({comment}): recommend_bytes: {recommend_bytes}")
         if recommend_bytes == 0:
             log_err(f"extract({comment}): entropy not enough")

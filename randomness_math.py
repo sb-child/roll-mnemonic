@@ -220,7 +220,7 @@ def recommended_bits_from_score(randomness_score: float) -> int:
 
 
 def recommand_curve(x: float) -> float:
-    x_pts = [0.0, 0.1, 0.25, 0.5, 0.8, 0.9, 0.95, 1.0]
+    x_pts = [0.0, 0.08, 0.2, 0.5, 0.8, 0.9, 0.95, 1.0]
     y_pts = [0.0, 32, 48, 64, 256, 819, 921, 1024]
     return clamped_pchip(x_pts, y_pts, x)
 

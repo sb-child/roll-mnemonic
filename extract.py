@@ -31,8 +31,8 @@ def extract(a: Action, comment: str) -> ExtractResult:
     recommend_bytes = bits_to_bytes(recommended_bits_from_score(me))
     # log_err(f"extract({comment}): recommend_bytes: {recommend_bytes}")
     if recommend_bytes == 0:
-        log_err(f"extract({comment}): entropy not enough")
-        return ExtractResult(comment=comment, error="entropy not enough", entropy=me)
+        log_err(f"extract({comment}): randomness not enough")
+        return ExtractResult(comment=comment, error="randomness not enough", entropy=me)
     b3.update(combined.encode())
     return ExtractResult(
         comment=comment, data=b3.digest(length=recommend_bytes), entropy=me
@@ -50,9 +50,9 @@ def extract_fn(f: Callable[[], bytes], comment: str) -> ExtractResult:
         recommend_bytes = bits_to_bytes(recommended_bits_from_score(me))
         # log_err(f"extract({comment}): recommend_bytes: {recommend_bytes}")
         if recommend_bytes == 0:
-            log_err(f"extract({comment}): entropy not enough")
+            log_err(f"extract({comment}): randomness not enough")
             return ExtractResult(
-                comment=comment, error="entropy not enough", entropy=me
+                comment=comment, error="randomness not enough", entropy=me
             )
         b3 = blake3(derive_key_context=f"extract for {comment}")
         b3.update(r)

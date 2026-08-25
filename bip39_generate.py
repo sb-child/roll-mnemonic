@@ -90,7 +90,7 @@ def main(args: argparse.Namespace):
     addresses = get_address(mnemonic_phrase, index=index)
     log_out(f"\nGenerated {args.words} words.\n")
     print_mnemonic_table(mnemonic_phrase)
-    log_out(f"Or copy this: {mnemonic_phrase}\n")
+    log_out(f"Or copy this: [{mnemonic_phrase}]\n")
     log_out(f"Ethereum (#{index}): {addresses.ethereum}")
     log_out(f"Solana   (#{index}): {addresses.solana}\n")
     log_out_flush()

@@ -15,7 +15,6 @@ from util import (
     log_out,
     log_out_flush,
     print_qr,
-    wipe_memory,
 )
 
 WORD_TO_BYTES_MAP: dict[int, int] = {

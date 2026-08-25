@@ -1,9 +1,7 @@
 import base64
-import math
-from collections import Counter
 from blake3 import blake3
 from typing import List, Tuple, Union
-from util import clamped_pchip, scale_float
+from util import clamped_pchip
 import randomness_kit
 
 
